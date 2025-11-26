@@ -18,14 +18,12 @@ longitudes = np.linspace(-180, 180, 180)
 LAT, LON = np.meshgrid(latitudes, longitudes, indexing='ij')
 eclipse_mask = np.zeros(LAT.shape)
 
-# --- Cities to check (name, lat, lon) ---
 cities = [
     ("Chicago, IL, USA", 41.8781, -87.6298),
     ("New York, NY, USA", 40.7128, -74.0060),
     ("Los Angeles, CA, USA", 34.0522, -118.2437),
     ("London, UK", 51.5074, -0.1278),
     ("Istanbul, Turkey", 41.0082, 28.9784),
-    # add more as you want
 ]
 city_eclipses = {name: [] for name, _, _ in cities}
 
@@ -34,7 +32,6 @@ times = start_time + np.arange(0, (end_time - start_time).sec, time_step.to(u.s)
 print("Starting full‑year 2026 approximate eclipse calculation + city checks...")
 
 for t in times:
-    # Global grid (as before)
     locations = EarthLocation(lat=LAT.ravel()*u.deg, lon=LON.ravel()*u.deg)
     altaz_frame = AltAz(obstime=t, location=locations)
     sun_altaz  = get_sun(t).transform_to(altaz_frame)
@@ -44,7 +41,6 @@ for t in times:
     eclipse_indices = np.where((separation < 0.5) & (sun_alt > 0))[0]
     eclipse_mask.ravel()[eclipse_indices] = 1
 
-    # Check each city
     for name, lat, lon in cities:
         loc = EarthLocation(lat=lat*u.deg, lon=lon*u.deg)
         frame = AltAz(obstime=t, location=loc)
@@ -56,7 +52,6 @@ for t in times:
 
 print("Calculation done.\n")
 
-# Print summary for cities
 for name in city_eclipses:
     times_list = city_eclipses[name]
     if times_list:
@@ -81,3 +76,4 @@ for name, lat, lon in cities:
 
 plt.title("Approximate 2026 Solar Eclipse Regions + Example Cities")
 plt.show()
+
